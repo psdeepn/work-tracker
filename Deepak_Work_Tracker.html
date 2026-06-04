@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SD - Work Tracker</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<!-- Tabler Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+<script>
+// ==========================================
+// MAXIMUM SECURITY & ANTI-TAMPER WRAPPER
+// ==========================================
+(function() {
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+      if (e.key === 'F12' || 
+         (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+         (e.ctrlKey && ['U', 'S', 'P'].includes(e.key.toUpperCase())) ||
+         (e.metaKey && e.altKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+         (e.metaKey && ['U', 'S', 'P'].includes(e.key.toUpperCase()))) {
+          e.preventDefault();
+      }
+  });
+  document.addEventListener('dragstart', e => e.preventDefault());
+  setInterval(function() {
+      const before = new Date().getTime();
+      debugger;
+      const after = new Date().getTime();
+      if (after - before > 100) {
+          document.body.innerHTML = "<div style='background:#000; color:#ef4444; height:100vh; display:flex; align-items:center; justify-content:center; font-family:monospace; font-size:24px;'>SECURITY VIOLATION DETECTED</div>";
+      }
+  }, 1000);
+})();
+</script>
+
+<style>
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-bg-base: #0f172a; 
+  --color-background-primary: rgba(30, 41, 59, 0.65);
+  --color-background-secondary: rgba(51, 65, 85, 0.5);
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
+  --color-text-danger: #ef4444;
+  --color-border-secondary: rgba(148, 163, 184, 0.2);
+  --color-border-tertiary: rgba(148, 163, 184, 0.1);
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg-base); }
+::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+
+body { 
+  font-family: var(--font-sans); 
+  font-size: 14px; 
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-base);
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(16, 185, 129, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(59, 130, 246, 0.08), transparent 40%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 2rem 1rem;
+  
+  /* Security: Prevent text highlighting outside inputs */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input, textarea, .selectable {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.security-banner {
+  max-width: 1200px; margin: 0 auto 1rem auto; 
+  background: rgba(239, 68, 68, 0.1); color: #ef4444;
+  padding: 8px 16px; border-radius: var(--border-radius-md); font-size: 12px; display: flex;
+  justify-content: space-between; align-items: center;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.security-banner span { color: #fff; font-weight: 600; font-family: var(--font-mono); }
+
+.app { max-width: 1200px; margin: 0 auto; padding: 2rem; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--color-border-secondary); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+.header-title { font-size: 24px; font-weight: 700; background: linear-gradient(to right, #34d399, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px; }
+
+.level-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-weight: 600; font-size: 13px; color: var(--color-accent); }
+.xp-container { flex: 1; min-width: 200px; max-width: 300px; }
+.xp-bar-bg { height: 6px; background: var(--color-border-secondary); border-radius: 6px; overflow: hidden; margin-top: 4px; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 6px; transition: width 0.8s ease-out; }
+.xp-text { font-size: 11px; color: var(--color-text-secondary); display: flex; justify-content: space-between; margin-top: 2px; }
+
+.heatmap-grid { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 1rem; }
+.heatmap-day { width: 14px; height: 14px; border-radius: 3px; background: rgba(255,255,255,0.05); transition: transform 0.2s; position: relative; cursor: help; }
+.heatmap-day:hover { transform: scale(1.2); z-index: 2; border: 1px solid #fff; }
+.heat-1 { background: rgba(16, 185, 129, 0.3); }
+.heat-2 { background: rgba(16, 185, 129, 0.6); }
+.heat-3 { background: rgba(16, 185, 129, 0.9); }
+.heat-4 { background: #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.5); }
+
+.tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 2rem; padding-bottom: 8px; -ms-overflow-style: none; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 10px 20px; border: none; background: none; cursor: pointer; font-size: 14px; color: var(--color-text-secondary); border-radius: var(--border-radius-md); font-family: var(--font-sans); transition: all 0.2s ease; white-space: nowrap; }
+.tab.active { color: #fff; background: rgba(255, 255, 255, 0.1); font-weight: 500; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+.tab:hover:not(.active) { color: var(--color-text-primary); background: rgba(255, 255, 255, 0.05); }
+
+.section { display: none; animation: fadeIn 0.3s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.25rem; }
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.full { grid-template-columns: 1fr; }
+.focus-grid { grid-template-columns: 1fr 1.5fr; gap: 24px; }
+.leave-grid { grid-template-columns: repeat(3, 1fr); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+label { font-size: 12px; color: var(--color-text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+input, select, textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; font-family: var(--font-sans); background: rgba(15, 23, 42, 0.8); color: var(--color-text-primary); transition: border-color 0.2s, box-shadow 0.2s; }
+textarea { resize: vertical; min-height: 80px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+
+#quick-notes { min-height: 300px; font-size: 14px; line-height: 1.6; background: rgba(0,0,0,0.2); }
+#standup-output { font-family: var(--font-mono); font-size: 13px; line-height: 1.5; height: 250px; background: rgba(0,0,0,0.3); border-color: var(--color-border-tertiary); color: #34d399;}
+
+.mic-btn { position: absolute; right: 10px; bottom: 10px; background: var(--color-accent); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 12px rgba(16,185,129,0.3); transition: all 0.2s; z-index: 10; }
+.mic-btn.recording { background: #ef4444; animation: pulse 1.5s infinite; box-shadow: 0 4px 12px rgba(239,68,68,0.5); }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+.btn { padding: 10px 20px; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--color-border-secondary); font-family: var(--font-sans); background: var(--color-background-secondary); color: var(--color-text-primary); transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn:hover { background: rgba(255, 255, 255, 0.1); }
+.btn-primary { background: var(--color-accent); color: #fff; border-color: var(--color-accent); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+.btn-primary:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
+.btn-danger { background: none; color: var(--color-text-danger); border-color: rgba(239, 68, 68, 0.3); }
+.btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+.card { background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 12px; transition: transform 0.2s ease, border-color 0.2s ease; }
+.card:hover { transform: translateY(-2px); border-color: var(--color-border-secondary); }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+.card-title { font-weight: 600; font-size: 15px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;}
+.card-sub { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+.badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+/* Asset Link Styling */
+.asset-link { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); text-decoration: none; padding: 4px 10px; border-radius: 12px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; }
+.asset-link:hover { background: rgba(59, 130, 246, 0.2); transform: translateY(-1px); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 2rem; }
+.stat { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 1.25rem; text-align: center; border: 1px solid var(--color-border-tertiary); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+.stat-val { font-size: 28px; font-weight: 700; color: #fff; }
+.stat-lbl { font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.section-title { font-size: 16px; font-weight: 600; margin-bottom: 1rem; color: #fff; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border-tertiary); padding-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.empty { text-align: center; padding: 4rem 2rem; color: var(--color-text-tertiary); font-size: 14px; background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 1px dashed var(--color-border-secondary); }
+
+.timer-display { font-family: var(--font-mono); font-size: 48px; font-weight: 700; color: var(--color-accent); text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: var(--border-radius-lg); margin-bottom: 1rem; letter-spacing: 2px;}
+
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 100; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease; }
+.modal-bg.show { display: flex; opacity: 1; }
+.modal { background: #1e293b; border-radius: 20px; padding: 2rem; width: min(650px, 95vw); max-height: 85vh; overflow-y: auto; border: 1px solid var(--color-border-secondary); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); transform: translateY(20px); transition: transform 0.3s ease; }
+.modal-bg.show .modal { transform: translateY(0); }
+
+ul.task-list { margin-top: 10px; padding-left: 20px; font-size: 13px; color: var(--color-text-secondary); }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-accent); }
+
+@media (max-width: 850px) { .focus-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+  body { padding: 1rem 0.5rem; } .app { padding: 1.5rem 1rem; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .leave-grid { grid-template-columns: 1fr; }
+  .form-grid, .form-grid.three { grid-template-columns: 1fr; }
+  .xp-container { min-width: 100%; order: 3; margin-top: 10px; }
+  .timer-display { font-size: 36px; }
+}
+@media (max-width: 480px) { .stat-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="security-banner">
+  <div><i class="ti ti-shield-lock"></i> ANTI-INSPECT SECURITY LOCK-DOWN ACTIVE</div>
+  <span>LOCKED</span>
+</div>
+
+<div class="app">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem; flex-wrap:wrap; gap:16px;">
+    <div>
+      <div class="header-title">Deepak's WorkTracker</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px" id="today-date"></div>
+    </div>
+    
+    <div class="xp-container" id="xp-widget"></div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="exportData()" title="Backup Data"><i class="ti ti-download"></i> Backup</button>
+      <button class="btn btn-sm" onclick="document.getElementById('import-file').click()" title="Restore Data"><i class="ti ti-upload"></i> Restore</button>
+      <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
+      <button class="btn" onclick="openProjectModal()"><i class="ti ti-briefcase"></i> New Project</button>
+      <button class="btn btn-primary" onclick="openAdd()"><i class="ti ti-plus"></i> Log Work</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="tab" onclick="switchTab('focus')"><i class="ti ti-microphone"></i> Focus & Dictate</button>
+    <button class="tab" onclick="switchTab('projects')"><i class="ti ti-briefcase"></i> Projects</button>
+    <button class="tab" onclick="switchTab('leaves')"><i class="ti ti-plane-departure"></i> Leaves</button>
+    <button class="tab" onclick="switchTab('entries')"><i class="ti ti-list"></i> Work Logs</button>
+    <button class="tab" onclick="switchTab('training')"><i class="ti ti-school"></i> Training</button>
+    <button class="tab" onclick="switchTab('reports')"><i class="ti ti-report-analytics"></i> AI Copilot</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="section active">
+    <div class="stat-grid" id="stats-grid"></div>
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-title">30-Day Activity Heatmap</div>
+      <div class="heatmap-grid" id="heatmap-grid"></div>
+    </div>
+    <div style="margin-bottom:2rem">
+      <div class="section-title" style="border:none"><div><i class="ti ti-calendar-event"></i> Today's Log</div></div>
+      <div id="today-list"></div>
+    </div>
+  </div>
+
+  <!-- FOCUS & NOTES -->
+  <div id="tab-focus" class="section">
+    <div class="form-grid focus-grid">
+      <div>
+        <div class="section-title" style="border:none; margin-bottom:8px;"><div><i class="ti ti-stopwatch"></i> Live Tracker</div></div>
+        <div class="card" style="text-align:center; padding: 2rem;">
+           <div class="timer-display" id="timer-display">00:00:00</div>
+           <div style="display:flex; justify-content:center; gap:8px; margin-bottom:1rem; flex-wrap:wrap;">
+             <button class="btn btn-primary" id="btn-timer-start" onclick="toggleTimer()">Start</button>
+             <button class="btn" onclick="resetTimer()">Reset</button>
+           </div>
+           <button class="btn btn-sm btn-primary" style="width:100%; background:var(--color-bg-base)" onclick="logTimerToEntry()">
+             <i class="ti ti-plus"></i> Log Tracked Time
+           </button>
+        </div>
+      </div>
+      <div>
+        <div class="section-title" style="border:none; margin-bottom:8px;">
+          <div><i class="ti ti-notes"></i> Auto-Save Scratchpad</div>
+          <span style="font-size:11px; color:var(--color-text-secondary); font-weight:normal;">Supports Voice Dictation</span>
+        </div>
+        <div style="position:relative;">
+          <textarea id="quick-notes" placeholder="Jot down notes or click the mic to start dictating..." oninput="saveNotes()"></textarea>
+          <button class="mic-btn" id="btn-dictate" onclick="toggleDictation()" title="Voice Dictation"><i class="ti ti-microphone"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div id="tab-projects" class="section"><div id="projects-list"></div></div>
+
+  <!-- LEAVES -->
+  <div id="tab-leaves" class="section">
+    <div class="stat-grid leave-grid">
+      <div class="stat"><div class="field" style="max-width: 150px; margin: 0 auto;"><label style="color:var(--color-text-secondary)">Total Allowance</label><input type="number" id="setting-leave-allowance" onchange="updateLeaveAllowance()" style="text-align:center; font-size:24px; font-weight:bold; color:var(--color-accent); background:transparent; border-color:transparent;"></div></div>
+      <div class="stat"><div class="stat-val" id="stat-leave-taken">0</div><div class="stat-lbl">Leaves Taken</div></div>
+      <div class="stat"><div class="stat-val" id="stat-leave-remain">0</div><div class="stat-lbl">Remaining Balance</div></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
+      <div class="section-title" style="border:none; margin:0;"><i class="ti ti-plane-departure"></i> Leave History</div>
+      <button class="btn btn-sm btn-primary" onclick="openLeaveModal()">+ Log Leave</button>
+    </div>
+    <div id="leaves-list"></div>
+  </div>
+
+  <!-- ENTRIES -->
+  <div id="tab-entries" class="section"><div id="entries-list"></div></div>
+
+  <!-- TRAINING -->
+  <div id="tab-training" class="section">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
+      <div class="section-title" style="border:none; margin:0;"><i class="ti ti-school"></i> Mentorship & Training Logs</div>
+      <button class="btn btn-sm btn-primary" onclick="openAddTraining()">+ Log Training</button>
+    </div>
+    <div id="training-list"></div>
+  </div>
+
+  <!-- REPORTS & AI COPILOT -->
+  <div id="tab-reports" class="section">
+    <div class="card" style="border-color: var(--color-accent); margin-bottom: 2rem;">
+      <div class="section-title" style="border:none; margin-bottom: 8px;">
+        <div><i class="ti ti-robot"></i> Report Copilot</div>
+      </div>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1rem;">Automatically parse your logs and generate a clean Markdown report for Jira, Slack, or Teams.</p>
+      
+      <div style="display:flex; gap: 12px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap;">
+        <select id="report-type" style="width: auto; min-width: 220px;" onchange="generateStandupReport()">
+          <option value="status" selected>General Status Report</option>
+          <option value="training">Training & Mentorship Report</option>
+        </select>
+        <select id="report-timeframe" style="width: auto; min-width: 200px;" onchange="generateStandupReport()">
+          <option value="today">Today's Logs</option>
+          <option value="week" selected>This Week's Logs</option>
+          <option value="month">This Month's Logs</option>
+          <option value="all">All-Time Logs</option>
+        </select>
+        <button class="btn btn-primary" onclick="generateStandupReport()"><i class="ti ti-bolt"></i> Generate</button>
+        <button class="btn" onclick="copyStandup()"><i class="ti ti-copy"></i> Copy Output</button>
+      </div>
+      <textarea id="standup-output" class="selectable" placeholder="Your generated report will appear here..." readonly></textarea>
+    </div>
+    <div id="report-area"></div>
+  </div>
+</div>
+
+<!-- ENTRY MODAL -->
+<div class="modal-bg" id="modal-add">
+  <div class="modal">
+    <div class="modal-title">Log Work Entry</div>
+    <div class="form-grid three">
+      <div class="field"><label>Project</label><select id="t-project"></select></div>
+      <div class="field">
+        <label>Type of Work</label>
+        <select id="t-type" onchange="checkOtherType()">
+          <option>Unity Project</option><option>Development</option><option>Testing</option>
+          <option>Training</option><option>Programming</option><option>Support</option>
+          <option>Meeting</option><option>Documentation</option><option>Review</option><option value="Other">Other (Specify)</option>
+        </select>
+        <input type="text" id="t-type-other" placeholder="Specify..." style="display:none; margin-top:4px;">
+      </div>
+      <div class="field"><label>Effort Hours</label><input type="number" id="t-hours" min="0.1" step="0.1"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Date Started</label><input type="date" id="t-date-start"></div>
+      <div class="field"><label>Status</label><select id="t-status"><option>In Progress</option><option>Completed</option><option>On Hold</option></select></div>
+    </div>
+    <div class="form-grid full">
+      <div class="field"><label>Tasks Performed</label><textarea id="t-desc" style="min-height: 60px;"></textarea></div>
+      <div class="field"><label>Asset Links (Screenshots, Loom Videos, Drive Docs)</label><textarea id="t-assets" placeholder="Paste URLs here (one per line)..." style="min-height: 50px;"></textarea></div>
+    </div>
+    <div class="btn-row" style="justify-content: flex-end; margin-top: 1rem;"><button class="btn" onclick="closeModal('modal-add')">Cancel</button><button class="btn btn-primary" onclick="saveEntry()">Save Entry</button></div>
+  </div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-bg" id="modal-project">
+  <div class="modal">
+    <div class="modal-title" id="p-modal-title">Add Project</div>
+    <div class="form-grid three">
+      <div class="field"><label>Project Name</label><input type="text" id="p-name"></div>
+      <div class="field"><label>Status</label><select id="p-status"><option>In Pipeline</option><option>Active</option><option>Completed</option><option>On Hold</option></select></div>
+      <div class="field"><label>Hourly Rate ($/₹)</label><input type="number" id="p-rate" placeholder="e.g. 50"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Start Date</label><input type="date" id="p-start"></div>
+      <div class="field"><label>End Date</label><input type="date" id="p-end"></div>
+    </div>
+    <div class="form-grid full">
+      <div class="field"><label>Project Assets (Repos, Figma, External Links)</label><textarea id="p-assets" placeholder="Paste links here (one per line)..." style="min-height: 50px;"></textarea></div>
+    </div>
+    <div class="btn-row" style="justify-content: flex-end; margin-top: 1rem;"><button class="btn" onclick="closeModal('modal-project')">Cancel</button><button class="btn btn-primary" onclick="saveProject()">Save Project</button></div>
+  </div>
+</div>
+
+<!-- TRAINING & MENTORSHIP MODAL -->
+<div class="modal-bg" id="modal-training">
+  <div class="modal">
+    <div class="modal-title" id="tr-modal-title">Log Training</div>
+    <div class="form-grid">
+      <div class="field"><label>Date</label><input type="date" id="tr-date"></div>
+      <div class="field"><label>Duration (Hours)</label><input type="number" id="tr-hours" min="0.1" step="0.1"></div>
+      <div class="field"><label>Trainee / Group</label><input type="text" id="tr-trainee" placeholder="e.g. John Doe"></div>
+      <div class="field"><label>Topic</label><input type="text" id="tr-topic" placeholder="e.g. Unity Mechanics"></div>
+    </div>
+    <div class="form-grid full" style="margin-bottom: 0;">
+      <div class="field"><label>Session Details</label><textarea id="tr-details" placeholder="What was covered during the session..." style="min-height: 60px;"></textarea></div>
+      <div class="field"><label>Assigned Tasks / Hands-on Exercises</label><textarea id="tr-tasks" placeholder="Tasks assigned to the trainee to practice..." style="min-height: 60px;"></textarea></div>
+      <div class="field" style="flex-direction: row; align-items: center; gap: 8px; margin-top: 8px;">
+         <input type="checkbox" id="tr-completed">
+         <label style="margin: 0; cursor: pointer; color: var(--color-text-primary);" for="tr-completed">Trainee successfully completed tasks / gained hands-on experience</label>
+      </div>
+    </div>
+    <div class="btn-row" style="justify-content: flex-end; margin-top: 1.5rem;"><button class="btn" onclick="closeModal('modal-training')">Cancel</button><button class="btn btn-primary" onclick="saveTraining()">Save Record</button></div>
+  </div>
+</div>
+
+<!-- LEAVE MODAL -->
+<div class="modal-bg" id="modal-leave">
+  <div class="modal">
+    <div class="modal-title">Log Leave</div>
+    <div class="form-grid"><div class="field"><label>Type</label><select id="l-type"><option>Casual</option><option>Sick</option><option>Optional</option></select></div><div class="field"><label>Duration</label><select id="l-duration" onchange="toggleLeaveFields()"><option value="1">1 Day</option><option value="0.5">Half Day</option><option value="multi">Multi</option></select></div><div class="field"><label>Start</label><input type="date" id="l-start" onchange="calcLeaveDays()"></div><div class="field" id="l-end-wrap" style="display:none"><label>End</label><input type="date" id="l-end" onchange="calcLeaveDays()"></div><div class="field full"><label>Days</label><input type="number" id="l-days" value="1"></div></div>
+    <div class="btn-row" style="justify-content: flex-end; margin-top: 1rem;"><button class="btn" onclick="closeModal('modal-leave')">Cancel</button><button class="btn btn-primary" onclick="saveLeave()">Confirm</button></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let entries = []; let trainings = []; let projects = []; let leaves = { allowance: 20, history: [] }; let savedNotes = "";
+  let editId = null; let editProjName = null; let editTrainingId = null;
+
+  const TITLES = [
+      { max: 50, name: "Intern" }, { max: 200, name: "Novice" }, { max: 500, name: "Apprentice" },
+      { max: 1000, name: "Adept" }, { max: 2000, name: "Expert" }, { max: 5000, name: "Master" },
+      { max: Infinity, name: "Grandmaster" }
+  ];
+
+  let timerInterval = null; let timerSeconds = 0; let isTimerRunning = false;
+  let speechRecog = null; let isDictating = false;
+
+  function loadData(){
+    try {
+      if(localStorage.getItem('hp_entries')) entries = JSON.parse(localStorage.getItem('hp_entries'));
+      if(localStorage.getItem('hp_trainings')) trainings = JSON.parse(localStorage.getItem('hp_trainings'));
+      if(localStorage.getItem('hp_projects')) projects = JSON.parse(localStorage.getItem('hp_projects'));
+      if(localStorage.getItem('hp_leaves')) leaves = JSON.parse(localStorage.getItem('hp_leaves'));
+      if(localStorage.getItem('hp_notes')) savedNotes = localStorage.getItem('hp_notes');
+    } catch(e){}
+    if(projects.length === 0) projects.push({ name: 'General Support', status: 'Active', rate: 0, start: today(), end: '', assets: ''});
+    document.getElementById('setting-leave-allowance').value = leaves.allowance;
+    document.getElementById('quick-notes').value = savedNotes;
+  }
+
+  function saveData(){
+    localStorage.setItem('hp_entries', JSON.stringify(entries)); localStorage.setItem('hp_trainings', JSON.stringify(trainings));
+    localStorage.setItem('hp_projects', JSON.stringify(projects)); localStorage.setItem('hp_leaves', JSON.stringify(leaves));
+    localStorage.setItem('hp_notes', savedNotes);
+  }
+
+  function uid(){return Date.now().toString(36) + Math.random().toString(36).substring(2);}
+  function today(){return new Date().toISOString().slice(0,10);}
+  function fmt(d){if(!d)return'—'; const p=d.split('-'); return p[2]+' '+MONTHS[+p[1]-1]+' '+p[0];}
+  
+  function weekRange(dateStr) {
+      const d = new Date(dateStr);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const mon = new Date(d.setDate(diff));
+      const sun = new Date(mon);
+      sun.setDate(mon.getDate() + 6);
+      return { mon: mon.toISOString().slice(0,10), sun: sun.toISOString().slice(0,10) };
+  }
+
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  ['t-date-start', 'p-start', 'l-start', 'tr-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = today(); });
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+      speechRecog = new Speech(); speechRecog.continuous = true; speechRecog.interimResults = true;
+      speechRecog.onresult = (e) => { let trans = ''; for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) trans += e.results[i][0].transcript + ' '; } if(trans) { const nb = document.getElementById('quick-notes'); nb.value += (nb.value.endsWith(' ') || nb.value === '' ? '' : ' ') + trans; window.saveNotes(); } };
+      speechRecog.onend = () => { if(isDictating) speechRecog.start(); }; 
+  }
+
+  window.toggleDictation = function() {
+      if(!speechRecog) return alert("Speech Recognition is not supported in this browser.");
+      const btn = document.getElementById('btn-dictate');
+      if(isDictating) { isDictating = false; speechRecog.stop(); btn.classList.remove('recording'); } 
+      else { isDictating = true; speechRecog.start(); btn.classList.add('recording'); }
+  }
+
+  function updateTimerDisplay() {
+    const h = String(Math.floor(timerSeconds / 3600)).padStart(2, '0'); const m = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0'); const s = String(timerSeconds % 60).padStart(2, '0');
+    document.getElementById('timer-display').textContent = `${h}:${m}:${s}`;
+  }
+  window.toggleTimer = function() { const btn = document.getElementById('btn-timer-start'); if(isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.textContent = 'Resume'; btn.classList.remove('btn-danger'); btn.classList.add('btn-primary'); } else { timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); isTimerRunning = true; btn.textContent = 'Pause'; btn.classList.remove('btn-primary'); btn.classList.add('btn-danger'); } }
+  window.resetTimer = function() { if(confirm("Reset the timer?")) { clearInterval(timerInterval); isTimerRunning = false; timerSeconds = 0; updateTimerDisplay(); document.getElementById('btn-timer-start').textContent = 'Start'; document.getElementById('btn-timer-start').classList.replace('btn-danger', 'btn-primary'); } }
+  window.logTimerToEntry = function() { let decHours = (timerSeconds / 3600).toFixed(1); if(decHours <= 0) decHours = 0.1; window.openAdd(); document.getElementById('t-hours').value = decHours; }
+
+  window.saveNotes = function() { savedNotes = document.getElementById('quick-notes').value; saveData(); }
+  window.exportData = function() { const data = { entries, trainings, projects, leaves, notes: savedNotes }; const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `WorkTracker_${today()}.json`; a.click(); URL.revokeObjectURL(url); };
+  window.importData = function(e) {
+    const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
+    reader.onload = function(ev) { try { const imp = JSON.parse(ev.target.result); if(imp.entries) entries = imp.entries; if(imp.projects) projects = imp.projects; if(imp.trainings) trainings = imp.trainings; if(imp.leaves) leaves = imp.leaves; if(imp.notes) savedNotes = imp.notes; saveData(); renderAll(); document.getElementById('quick-notes').value = savedNotes; alert("Restored!"); } catch(err) { alert("Invalid file."); } e.target.value = ''; }; reader.readAsText(file);
+  };
+
+  window.switchTab = function(t){ const tabs = ['dashboard', 'focus', 'projects', 'leaves', 'entries', 'training', 'reports']; document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', tabs[i]===t)); document.querySelectorAll('.section').forEach(el => el.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); renderAll(); }
+
+  // Parse Asset Links for rendering
+  function renderAssetLinks(assetStr) {
+      if(!assetStr) return '';
+      const links = assetStr.split('\n').filter(l => l.trim() !== '');
+      if(links.length === 0) return '';
+      
+      return `<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">` + 
+          links.map(l => {
+              const url = l.trim();
+              let icon = 'ti-link';
+              if(url.includes('loom.com') || url.includes('youtube') || url.includes('mp4')) icon = 'ti-video';
+              else if(url.match(/\.(jpeg|jpg|gif|png)$/i) || url.includes('imgur') || url.includes('gyazo') || url.includes('prnt.sc')) icon = 'ti-photo';
+              else if(url.includes('drive.google') || url.includes('docs')) icon = 'ti-file-description';
+              else if(url.includes('github') || url.includes('gitlab')) icon = 'ti-brand-github';
+              
+              return `<a href="${url}" target="_blank" class="asset-link"><i class="ti ${icon}"></i> View Asset</a>`;
+          }).join('') + `</div>`;
+  }
+
+  window.openAdd = function(id){
+    editId = id || null; document.getElementById('t-project').innerHTML = projects.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+    if(editId){ const e = entries.find(x => x.id === editId); if(e){ document.getElementById('t-project').value = e.project; document.getElementById('t-hours').value = e.hours; document.getElementById('t-date-start').value = e.dateStart; document.getElementById('t-status').value = e.status || 'In Progress'; document.getElementById('t-desc').value = e.desc; document.getElementById('t-assets').value = e.assets || ''; const ts = document.getElementById('t-type'); const to = document.getElementById('t-type-other'); if(Array.from(ts.options).some(o => o.value === e.type)) { ts.value = e.type; to.style.display = 'none'; to.value = ''; } else { ts.value = 'Other'; to.style.display = 'block'; to.value = e.type; } }
+    } else { if(!document.getElementById('t-hours').value) document.getElementById('t-hours').value = ''; document.getElementById('t-desc').value = ''; document.getElementById('t-assets').value = ''; document.getElementById('t-date-start').value = today(); document.getElementById('t-type').value = 'Unity Project'; window.checkOtherType(); }
+    document.getElementById('modal-add').classList.add('show');
+  }
+  window.checkOtherType = function() { document.getElementById('t-type-other').style.display = (document.getElementById('t-type').value === 'Other') ? 'block' : 'none'; }
+  window.saveEntry = function(){
+    const proj = document.getElementById('t-project').value; let type = document.getElementById('t-type').value;
+    if(type === 'Other') { type = document.getElementById('t-type-other').value.trim(); if(!type) return alert("Specify type."); }
+    const hrs = parseFloat(document.getElementById('t-hours').value);
+    if(!proj || !hrs || hrs<=0 || !document.getElementById('t-desc').value.trim()) return alert("Fill all valid details.");
+    const e = { id: editId || uid(), project: proj, type: type, hours: hrs, dateStart: document.getElementById('t-date-start').value, status: document.getElementById('t-status').value, desc: document.getElementById('t-desc').value, assets: document.getElementById('t-assets').value };
+    if(editId) { const i = entries.findIndex(x=>x.id===editId); if(i>-1) entries[i] = e; } else entries.unshift(e);
+    saveData(); window.closeModal('modal-add'); document.getElementById('t-hours').value = ''; renderAll();
+  }
+  window.deleteEntry = function(id) { if(confirm("Delete?")) { entries = entries.filter(x => x.id !== id); saveData(); renderAll(); } }
+
+  window.openProjectModal = function(name){ editProjName = name || null; document.getElementById('p-modal-title').textContent = editProjName ? 'Edit Project' : 'Add Project'; if(editProjName){ const p = projects.find(x => x.name === editProjName); document.getElementById('p-name').value = p.name; document.getElementById('p-status').value = p.status; document.getElementById('p-rate').value = p.rate || ''; document.getElementById('p-start').value = p.start; document.getElementById('p-end').value = p.end || ''; document.getElementById('p-assets').value = p.assets || ''; } else { document.getElementById('p-name').value = ''; document.getElementById('p-rate').value = ''; document.getElementById('p-assets').value = ''; document.getElementById('p-start').value = today(); document.getElementById('p-end').value = ''; } document.getElementById('modal-project').classList.add('show'); }
+  window.saveProject = function(){ const name = document.getElementById('p-name').value.trim(); if(!name) return alert("Name required."); if(projects.some(p => p.name.toLowerCase() === name.toLowerCase() && p.name !== editProjName)) return alert("Exists."); const p = { name: name, status: document.getElementById('p-status').value, rate: parseFloat(document.getElementById('p-rate').value) || 0, start: document.getElementById('p-start').value, end: document.getElementById('p-end').value, assets: document.getElementById('p-assets').value }; if(editProjName) { const i = projects.findIndex(x=>x.name===editProjName); if(i>-1) projects[i] = p; entries.forEach(e => { if(e.project === editProjName) e.project = name; }); } else projects.push(p); saveData(); window.closeModal('modal-project'); renderAll(); }
+  window.deleteProject = function(name) { if(!confirm(`Delete "${name}" AND all its logs?`)) return; projects = projects.filter(p => p.name !== name); entries = entries.filter(e => e.project !== name); saveData(); renderAll(); }
+
+  window.openAddTraining = function(id){
+      editTrainingId = id || null;
+      document.getElementById('tr-modal-title').textContent = editTrainingId ? 'Edit Training' : 'Log Training';
+      if(id){
+          const t = trainings.find(x => x.id === id);
+          document.getElementById('tr-date').value = t.date;
+          document.getElementById('tr-hours').value = t.hours;
+          document.getElementById('tr-trainee').value = t.trainee;
+          document.getElementById('tr-topic').value = t.topic;
+          document.getElementById('tr-details').value = t.details || '';
+          document.getElementById('tr-tasks').value = t.tasks || '';
+          document.getElementById('tr-completed').checked = !!t.completed;
+      } else {
+          document.getElementById('tr-date').value = today();
+          ['tr-hours','tr-trainee','tr-topic','tr-details','tr-tasks'].forEach(i => document.getElementById(i).value='');
+          document.getElementById('tr-completed').checked = false;
+      }
+      document.getElementById('modal-training').classList.add('show');
+  }
+
+  window.saveTraining = function(){
+      const h = parseFloat(document.getElementById('tr-hours').value);
+      if(!h || h <= 0) return alert("Please enter valid duration hours.");
+      const t = {
+          id: editTrainingId || uid(),
+          date: document.getElementById('tr-date').value,
+          hours: h,
+          trainee: document.getElementById('tr-trainee').value || 'Unspecified',
+          topic: document.getElementById('tr-topic').value || 'General',
+          details: document.getElementById('tr-details').value,
+          tasks: document.getElementById('tr-tasks').value,
+          completed: document.getElementById('tr-completed').checked
+      };
+      if(editTrainingId){
+          const i = trainings.findIndex(x => x.id === editTrainingId);
+          trainings[i] = t;
+      } else trainings.unshift(t);
+      saveData(); window.closeModal('modal-training'); renderAll();
+  }
+  window.deleteTraining=function(id){if(confirm("Delete?")){trainings=trainings.filter(x=>x.id!==id);saveData();renderAll();}}
+  window.updateLeaveAllowance=function(){leaves.allowance=parseFloat(document.getElementById('setting-leave-allowance').value)||0;saveData();renderAll();}
+  window.openLeaveModal=function(){document.getElementById('l-start').value=today();document.getElementById('l-end').value='';document.getElementById('l-duration').value='1';window.toggleLeaveFields();document.getElementById('modal-leave').classList.add('show');}
+  window.toggleLeaveFields=function(){const d=document.getElementById('l-duration').value;document.getElementById('l-end-wrap').style.display=(d==='multi')?'flex':'none';if(d!=='multi'){document.getElementById('l-days').value=d;document.getElementById('l-days').readOnly=true;}else{document.getElementById('l-days').readOnly=false;window.calcLeaveDays();}}
+  window.calcLeaveDays=function(){if(document.getElementById('l-duration').value!=='multi')return;const s=new Date(document.getElementById('l-start').value);const e=new Date(document.getElementById('l-end').value);if(e>=s)document.getElementById('l-days').value=Math.ceil(Math.abs(e-s)/(1000*60*60*24))+1;}
+  window.saveLeave=function(){const s=document.getElementById('l-start').value;const d=document.getElementById('l-duration').value;const days=parseFloat(document.getElementById('l-days').value);if(!s||days<=0)return;leaves.history.unshift({id:uid(),type:document.getElementById('l-type').value,start:s,end:d==='multi'?document.getElementById('l-end').value:s,days});saveData();window.closeModal('modal-leave');renderAll();}
+  window.deleteLeave=function(id){if(confirm("Delete?")){leaves.history=leaves.history.filter(x=>x.id!==id);saveData();renderAll();}}
+
+  // --- REPORT COPILOT ---
+  window.generateStandupReport = function() {
+      const type = document.getElementById('report-type').value;
+      const range = document.getElementById('report-timeframe').value;
+      const t = today();
+      const wr = weekRange(t);
+      const monthPrefix = t.slice(0,7);
+
+      let filteredEntries = entries;
+      let filteredTrainings = trainings;
+      let rangeLabel = "All-Time Overview";
+
+      if(range === 'today') {
+          filteredEntries = entries.filter(e => e.dateStart === t);
+          filteredTrainings = trainings.filter(tr => tr.date === t);
+          rangeLabel = `Daily Update (${fmt(t)})`;
+      } else if(range === 'week') {
+          filteredEntries = entries.filter(e => e.dateStart >= wr.mon && e.dateStart <= wr.sun);
+          filteredTrainings = trainings.filter(tr => tr.date >= wr.mon && tr.date <= wr.sun);
+          rangeLabel = `Weekly Report (${fmt(wr.mon)} to ${fmt(wr.sun)})`;
+      } else if(range === 'month') {
+          filteredEntries = entries.filter(e => e.dateStart.startsWith(monthPrefix));
+          filteredTrainings = trainings.filter(tr => tr.date.startsWith(monthPrefix));
+          rangeLabel = `Monthly Summary (${MONTHS[parseInt(t.slice(5,7))-1]} ${t.slice(0,4)})`;
+      }
+
+      let totalHrs = filteredEntries.reduce((s,e) => s+e.hours, 0);
+      let trainHrs = filteredTrainings.reduce((s,tr) => s+tr.hours, 0);
+      let out = `**${rangeLabel.toUpperCase()}**\n\n`;
+
+      if (type === 'status') {
+          if(filteredEntries.length === 0 && filteredTrainings.length === 0) {
+              document.getElementById('standup-output').value = "No logs found for this timeframe."; return;
+          }
+          
+          let byProj = {};
+          filteredEntries.forEach(e => { if(!byProj[e.project]) byProj[e.project] = []; byProj[e.project].push(e); });
+          
+          if(filteredEntries.length > 0) {
+              out += `**Completed Focus Areas:**\n`;
+              for(let p in byProj) {
+                  out += `🔹 **${p}:**\n`;
+                  byProj[p].forEach(e => { 
+                      out += `   - [${e.type}] ${e.desc} (${e.hours}h)\n`;
+                      if(e.assets) {
+                          const links = e.assets.split('\n').filter(l => l.trim() !== '');
+                          if(links.length > 0) out += `     *Assets:* ${links.join(', ')}\n`;
+                      }
+                  });
+              }
+              out += `\n`;
+          }
+          if(filteredTrainings.length > 0) {
+              out += `**Training & Mentorship Delivered:**\n`;
+              filteredTrainings.forEach(tr => { out += `   - ${tr.topic} with ${tr.trainee} (${tr.hours}h)\n`; });
+              out += `\n`;
+          }
+          out += `**Metrics Summary:**\n- Operational Time: ${totalHrs.toFixed(1)}h\n- Projects Touched: ${Object.keys(byProj).length}\n`;
+          if(trainHrs > 0) out += `- Training Given: ${trainHrs.toFixed(1)}h\n`;
+          
+      } else if (type === 'training') {
+          if(filteredTrainings.length === 0) {
+              document.getElementById('standup-output').value = "No training logs found for this timeframe."; return;
+          }
+
+          out += `**TRAINING & MENTORSHIP SUMMARY**\n\n`;
+          let byTrainee = {};
+          filteredTrainings.forEach(tr => {
+              if(!byTrainee[tr.trainee]) byTrainee[tr.trainee] = { hrs: 0, sessions: [] };
+              byTrainee[tr.trainee].hrs += tr.hours;
+              byTrainee[tr.trainee].sessions.push(tr);
+          });
+
+          for(let trainee in byTrainee) {
+              out += `👤 **${trainee}** - Total: ${byTrainee[trainee].hrs.toFixed(1)}h\n`;
+              byTrainee[trainee].sessions.forEach(s => {
+                  out += `   - **Topic:** ${s.topic} (${s.hours}h)\n`;
+                  if(s.details) out += `     *Details:* ${s.details}\n`;
+                  if(s.tasks) {
+                      let stat = s.completed ? '[x] Completed' : '[ ] Pending';
+                      out += `     *Assigned Tasks:* ${s.tasks} ${stat}\n`;
+                  }
+              });
+              out += `\n`;
+          }
+
+          out += `**Metrics Summary:**\n`;
+          out += `- Total Training Time: ${trainHrs.toFixed(1)} Hours\n`;
+          out += `- Total Trainees/Groups: ${Object.keys(byTrainee).length}\n`;
+          out += `- Total Sessions: ${filteredTrainings.length}\n`;
+      }
+
+      document.getElementById('standup-output').value = out;
+  }
+
+  window.copyStandup = function() {
+      const out = document.getElementById('standup-output');
+      if(!out.value || out.value.includes("No logs found")) return alert("Nothing to copy.");
+      out.select(); out.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(out.value).then(() => { alert("Report copied to clipboard!"); })
+      .catch(() => { document.execCommand('copy'); alert("Report copied to clipboard!"); });
+  }
+
+  function getLevelData(hours) {
+      let currentTitle = TITLES[0].name; let nextThreshold = TITLES[0].max;
+      for(let i=0; i<TITLES.length; i++) { if(hours < TITLES[i].max) { currentTitle = TITLES[i].name; nextThreshold = TITLES[i].max; break; } }
+      const lvl = Math.floor(Math.sqrt(hours * 2)) + 1; const progress = Math.min(100, (hours / nextThreshold) * 100);
+      return { lvl, title: currentTitle, progress, next: nextThreshold };
+  }
+
+  function renderDashboard(){
+    const t = today(); const tEntries = entries.filter(e => e.dateStart === t); const hrsToday = tEntries.reduce((s,e) => s + e.hours, 0); const activeProjects = projects.filter(p => p.status === 'Active').length; let totalWorkHrs = entries.reduce((s,e) => s + e.hours, 0);
+    const xpData = getLevelData(totalWorkHrs);
+    document.getElementById('xp-widget').innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;"><span class="level-badge"><i class="ti ti-star"></i> Lvl ${xpData.lvl} ${xpData.title}</span><span style="font-size:11px; color:var(--color-text-secondary); font-weight:600;">${Math.floor(totalWorkHrs*100)} XP</span></div><div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${xpData.progress}%"></div></div><div class="xp-text"><span>Rank Progress</span><span>Next: ${xpData.next}h</span></div>`;
+    document.getElementById('stats-grid').innerHTML = `<div class="stat"><div class="stat-val">${hrsToday.toFixed(1)}</div><div class="stat-lbl">Hours Today</div></div><div class="stat"><div class="stat-val">${activeProjects}</div><div class="stat-lbl">Active Projects</div></div>`;
+    
+    let hmHTML = ''; const now = new Date();
+    for(let i=29; i>=0; i--) { const d = new Date(); d.setDate(now.getDate() - i); const ds = d.toISOString().slice(0,10); const hrs = entries.filter(e => e.dateStart === ds).reduce((s,e) => s + e.hours, 0); let heatClass = ''; if(hrs > 0 && hrs <= 2) heatClass = 'heat-1'; else if(hrs > 2 && hrs <= 5) heatClass = 'heat-2'; else if(hrs > 5 && hrs <= 8) heatClass = 'heat-3'; else if(hrs > 8) heatClass = 'heat-4'; hmHTML += `<div class="heatmap-day ${heatClass}" title="${fmt(ds)}: ${hrs} hrs"></div>`; }
+    document.getElementById('heatmap-grid').innerHTML = hmHTML;
+
+    const tl = document.getElementById('today-list');
+    if(tEntries.length === 0){ tl.innerHTML = '<div class="empty">No entries today. Ready to focus?</div>'; } else { tl.innerHTML = tEntries.map(e => `<div class="card"><div class="card-header"><div style="flex:1"><div class="card-title">${e.project}</div><div class="card-sub">${e.desc}</div></div><div><span class="badge badge-green">${e.type}</span> <strong style="color:var(--color-accent); margin-left:8px;">${e.hours}h</strong></div></div>${renderAssetLinks(e.assets)}</div>`).join(''); }
+  }
+
+  function renderProjects(){
+    const pl = document.getElementById('projects-list'); if(projects.length === 0) { pl.innerHTML = '<div class="empty">No projects.</div>'; return; }
+    pl.innerHTML = projects.map(p => {
+      const pEntries = entries.filter(e => e.project === p.name); const totalHrs = pEntries.reduce((s,e) => s + e.hours, 0); const earned = totalHrs * (p.rate || 0); const tasksHTML = pEntries.map(e => `<li>${e.desc} <span style="color:var(--color-accent);font-weight:600">(${e.hours}h)</span> <span style="opacity:0.6">[${fmt(e.dateStart)}]</span></li>`).join('');
+      return `<div class="card"><div class="card-header"><div class="card-title">${p.name} <span class="badge ${p.status === 'Active' ? 'badge-green' : 'badge-amber'}">${p.status}</span></div><div style="text-align:right;"><div style="font-weight:600; color:var(--color-accent); font-size:16px;">${totalHrs.toFixed(1)}h Total</div>${p.rate > 0 ? `<div style="font-size:12px; color:var(--color-text-secondary); margin-top:4px;">Generated: ₹${earned.toLocaleString()} (@ ₹${p.rate}/h)</div>` : ''}</div></div><div class="card-sub">Started: ${fmt(p.start)} ${p.end ? `| Ended: ${fmt(p.end)}` : ''}</div>${renderAssetLinks(p.assets)}${tasksHTML ? `<ul class="task-list">${tasksHTML}</ul>` : `<div style="font-size:13px; margin-top:8px; color:var(--color-text-tertiary)">No logs yet.</div>`}<div style="margin-top:12px; display:flex; gap:8px;"><button class="btn btn-sm" onclick="openProjectModal('${p.name}')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteProject('${p.name}')">Delete</button></div></div>`;
+    }).join('');
+  }
+
+  function renderLeaves(){
+    const taken = leaves.history.reduce((s,l) => s + l.days, 0); document.getElementById('stat-leave-taken').textContent = taken; document.getElementById('stat-leave-remain').textContent = leaves.allowance - taken;
+    const ll = document.getElementById('leaves-list'); if(leaves.history.length === 0){ ll.innerHTML = '<div class="empty">No leaves logged.</div>'; return; }
+    ll.innerHTML = leaves.history.map(l => `<div class="card" style="display:flex; justify-content:space-between; align-items:center;"><div><div class="card-title">${l.type}</div><div class="card-sub">${fmt(l.start)} ${l.end !== l.start ? '→ ' + fmt(l.end) : ''}</div></div><div style="display:flex; align-items:center; gap:16px;"><strong style="color:var(--color-text-danger); font-size:16px;">-${l.days} Days</strong><button class="btn btn-sm btn-danger" onclick="deleteLeave('${l.id}')"><i class="ti ti-trash"></i></button></div></div>`).join('');
+  }
+
+  function renderEntries(){
+    const el = document.getElementById('entries-list'); if(entries.length === 0){ el.innerHTML = '<div class="empty">No entries found.</div>'; return; }
+    el.innerHTML = entries.map(e => `<div class="card"><div class="card-header"><div style="flex:1"><div class="card-title">${e.project}</div><div class="card-sub">${fmt(e.dateStart)}</div></div><div><span class="badge badge-green">${e.type}</span> <strong style="color:var(--color-accent); margin-left:8px;">${e.hours}h</strong></div></div><div style="font-size:14px; margin-top:8px; color:var(--color-text-secondary);">${e.desc}</div>${renderAssetLinks(e.assets)}<div style="margin-top:12px; display:flex; gap:8px;"><button class="btn btn-sm" onclick="openAdd('${e.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteEntry('${e.id}')">Delete</button></div></div>`).join('');
+  }
+
+  function renderTraining(){
+    const el = document.getElementById('training-list'); 
+    if(trainings.length === 0){ el.innerHTML = '<div class="empty">No training sessions logged.</div>'; return; }
+    
+    el.innerHTML = trainings.map(t => {
+      let statusBadge = t.completed 
+        ? `<span class="badge badge-green" style="margin-left:8px;"><i class="ti ti-check"></i> Hands-on Completed</span>` 
+        : `<span class="badge badge-amber" style="margin-left:8px;"><i class="ti ti-clock"></i> Pending Hands-on</span>`;
+        
+      let tasksHTML = t.tasks 
+        ? `<div style="font-size:13px; margin-top:8px; padding:10px; background:rgba(0,0,0,0.2); border-radius:var(--border-radius-md); border-left: 2px solid ${t.completed ? '#10b981' : '#fbbf24'};"><strong style="color:var(--color-text-primary);">Assigned Tasks:</strong><br>${t.tasks}</div>` 
+        : '';
+
+      return `<div class="card">
+        <div class="card-header">
+          <div style="flex:1">
+            <div class="card-title">${t.trainee} ${statusBadge}</div>
+            <div class="card-sub">${fmt(t.date)}</div>
+          </div>
+          <div>
+            <span class="badge badge-purple">${t.topic}</span> 
+            <strong style="color:var(--color-accent); margin-left:8px;">${t.hours}h</strong>
+          </div>
+        </div>
+        <div style="font-size:14px; margin-top:8px; color:var(--color-text-secondary);">${t.details}</div>
+        ${tasksHTML}
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn btn-sm" onclick="openAddTraining('${t.id}')">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteTraining('${t.id}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderReports(){
+    const el = document.getElementById('report-area'); let totalWorkHrs = entries.reduce((s,e) => s + e.hours, 0); let totalTrainingHrs = trainings.reduce((s,t) => s + t.hours, 0); let projectData = {}; let traineeData = {}; let totalValue = 0;
+    
+    entries.forEach(e => { if(!projectData[e.project]) projectData[e.project] = { hrs: 0, val: 0 }; projectData[e.project].hrs += e.hours; });
+    projects.forEach(p => { if(projectData[p.name]) { projectData[p.name].val = projectData[p.name].hrs * (p.rate || 0); totalValue += projectData[p.name].val; } });
+    
+    trainings.forEach(t => { if(!traineeData[t.trainee]) traineeData[t.trainee] = 0; traineeData[t.trainee] += t.hours; });
+
+    if(totalWorkHrs === 0 && totalTrainingHrs === 0) { el.innerHTML = '<div class="empty">Not enough data.</div>'; return; }
+
+    let reportHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; flex-wrap:wrap; gap:8px;"><div class="section-title" style="border:none; margin:0;"><i class="ti ti-chart-pie"></i> Time Distribution</div><div style="font-size: 18px; font-weight:700; color:var(--color-accent); padding: 8px 16px; background: rgba(16,185,129,0.1); border-radius: var(--border-radius-md);">Total Generated Value: ₹${totalValue.toLocaleString()}</div></div><div class="stat-grid" style="grid-template-columns: 1fr 1fr; margin-bottom:1rem;"><div class="stat"><div class="stat-val">${totalWorkHrs.toFixed(1)}h</div><div class="stat-lbl">Lifetime Work Hours</div></div><div class="stat"><div class="stat-val">${totalTrainingHrs.toFixed(1)}h</div><div class="stat-lbl">Lifetime Training Given</div></div></div>`;
+    
+    reportHTML += `<div class="card"><div class="card-title" style="margin-bottom:12px; color:var(--color-text-primary);">Work Hours by Project</div>`;
+    for (let proj in projectData) { let pct = (projectData[proj].hrs / totalWorkHrs) * 100; let valStr = projectData[proj].val > 0 ? `| ₹${projectData[proj].val.toLocaleString()}` : ''; reportHTML += `<div style="margin-bottom:12px;"><div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; color:var(--color-text-secondary);"><span>${proj}</span><span style="color:var(--color-accent); font-weight:600;">${projectData[proj].hrs.toFixed(1)}h (${pct.toFixed(0)}%) ${valStr}</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>`; }
+    reportHTML += `</div>`;
+
+    if(totalTrainingHrs > 0) {
+        reportHTML += `<div class="card" style="margin-top: 1rem;"><div class="card-title" style="margin-bottom:12px; color:var(--color-text-primary);">Training Hours by Mentee / Group</div>`;
+        for (let trainee in traineeData) {
+            let pct = (traineeData[trainee] / totalTrainingHrs) * 100;
+            reportHTML += `<div style="margin-bottom:12px;"><div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; color:var(--color-text-secondary);"><span>${trainee}</span><span style="color:var(--color-accent); font-weight:600;">${traineeData[trainee].toFixed(1)}h (${pct.toFixed(0)}%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background: linear-gradient(90deg, #8b5cf6, #a855f7);"></div></div></div>`;
+        }
+        reportHTML += `</div>`;
+    }
+
+    el.innerHTML = reportHTML;
+  }
+
+  window.closeModal = function(id) { document.getElementById(id).classList.remove('show'); }
+  function renderAll(){ renderDashboard(); renderProjects(); renderLeaves(); renderEntries(); renderTraining(); renderReports(); generateStandupReport(); }
+
+  document.querySelectorAll('.modal-bg').forEach(bg => { bg.addEventListener('click', function(e) { if(e.target === this) this.classList.remove('show'); }); });
+  loadData(); renderAll();
+})();
+</script>
+</body>
+</html>
